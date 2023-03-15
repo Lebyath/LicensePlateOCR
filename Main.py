@@ -6,14 +6,6 @@ import winsound
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-# Define function to check if string is in file
-def check_if_string_in_file(file_name, string_to_search):
-    with open(file_name, 'r') as read_obj:
-        for line in read_obj:
-            if string_to_search in line:
-                return True
-        return False
-
 # Create directory to store images
 if not os.path.exists("CarPictures"):
     os.makedirs("CarPictures")
@@ -73,15 +65,6 @@ cv2.drawContours(image, [NumberPlateCount], -1, (0, 255, 0), 3)
 # Read cropped image and convert to text using pytesseract
 text = pytesseract.image_to_string('crop.jpg', lang='eng')
 text = ''.join(e for e in text if e.isalnum())
-
-# Check if the number is in the database
-if check_if_string_in_file("database.txt", text):
-    # Play beep sound
-    frequency = 2500  # Set frequency in Hz
-    duration = 1000  # Set duration in ms
-    winsound.Beep(frequency, duration)
-
-print("Number is:", text)
 
 def check_if_string_in_file(file_name, string_to_search):
     with open(file_name, 'r') as read_obj:
