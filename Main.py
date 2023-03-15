@@ -66,6 +66,10 @@ cv2.drawContours(image, [NumberPlateCount], -1, (0, 255, 0), 3)
 text = pytesseract.image_to_string('crop.jpg', lang='eng')
 text = ''.join(e for e in text if e.isalnum())
 
+# Write text to database file
+with open("database.txt", "a") as f:
+    f.write(text + "\n")
+
 def check_if_string_in_file(file_name, string_to_search):
     with open(file_name, 'r') as read_obj:
         for line in read_obj:
