@@ -3,11 +3,12 @@ Working on a License Plate OCR implementation for a larger project.
 
 TO USE THIS TOOL:
  
- You will need to install the OpenCV, Matplotlib, Tesseract, and Winsound libraries:
+ You will need to install the OpenCV, Matplotlib, Tesseract, Scikit-Image and Winsound libraries:
  ```
  pip install opencv-python
  pip install matplotlib
  pip install pytesseract
+ pip install scikit-image
  pip install winsound
  ```
 
