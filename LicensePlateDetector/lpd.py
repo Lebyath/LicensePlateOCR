@@ -3,6 +3,7 @@ import imutils
 import pytesseract
 import os
 import winsound
+from skimage.filters import threshold_otsu, gaussian
 
 class LicensePlateDetector:
     def __init__(self):
@@ -35,6 +36,9 @@ class LicensePlateDetector:
         gray = cv2.bilateralFilter(gray, 11, 17, 17)
         return gray
 
+    def apply_gaussian_filter(self, image):
+        return gaussian(image, sigma=1)
+
     def find_license_plate(self, image):
         edged = cv2.Canny(image, 170, 200)
         cnts, _ = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -55,11 +59,14 @@ class LicensePlateDetector:
         cv2.drawContours(image, [LicensePlateCount], -1, (0, 255, 0), 3)
 
     def read_license_plate(self):
-        text = pytesseract.image_to_string('crop.jpg', lang='eng')
+        img = cv2.imread('crop.jpg', cv2.IMREAD_GRAYSCALE)
+        thresh = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+        text = pytesseract.image_to_string(thresh, lang='eng')
         return ''.join(e for e in text if e.isalnum())
 
+
     def write_to_database(self, text):
-        with open("database.txt", "a") as f:
+        with open("database.txt", "a", encoding="utf-8") as f:
             f.write(text + "\n")
 
     def check_database(self, text):
@@ -80,8 +87,14 @@ class LicensePlateDetector:
         gray = self.convert_to_grayscale(image)
         LicensePlateCount = self.find_license_plate(gray)
         self.draw_contour_on_image(image, LicensePlateCount)
-        text = self.read_license_plate()
+        plate_strings = []
+        while len(plate_strings) < 24 or len(set(plate_strings)) > 1:
+            text = self.read_license_plate()
+            plate_strings.append(text)
+            if len(plate_strings) >= 24 and len(set(plate_strings)) == 1:
+                break
+        text = plate_strings[0]
         self.write_to_database(text)
         if self.check_database(text):
             self.play_beep()
-        print("License plate#:", text)
+        print("License plate:", text)
